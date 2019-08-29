@@ -36,8 +36,9 @@ export class WebMap {
   @State() features:any[] = [];
   async initializeMap() {
     try {
-        const [WebMap, MapView, esriConfig] = await loadModules([
+        const [WebMap, Map, MapView, esriConfig] = await loadModules([
           'esri/WebMap', 
+          'esri/Map',
           'esri/views/MapView',
           'esri/config'
         ]);
@@ -46,18 +47,18 @@ export class WebMap {
         if (this.mapId) {
           map = new WebMap({portalItem: {id: this.mapId}});
         } 
-   
-            let popupconfig = {
-                highlightEnabled: this.highlight,
-                dockEnabled: this.popupdocked, 
-                dockOptions: {
-                    position: this.dockposition,
-                    buttonEnabled: false,
-                    breakpoint: false
-                }
-            };
-        
-        
+        else {
+          map = new Map({basemap: this.basemap});
+        }
+        let popupconfig = {
+          highlightEnabled: this.highlight,
+          dockEnabled: this.popupdocked, 
+          dockOptions: {
+              position: this.dockposition,
+              buttonEnabled: false,
+              breakpoint: false
+          }
+      };         
         return new MapView({map: map, container: 'mapDiv', popup: popupconfig});
 
       } catch (error) {
@@ -98,19 +99,13 @@ export class WebMap {
         const [Search] = await loadModules([
           'esri/widgets/Search'
         ]);
-        let search = new Search({view: mapView, container: document.createElement("div"), popupEnabled: this.popup,
-            goToOverride: (mapView, goToParams) => {
-                if (this.zoom) {
-                    goToParams.target.zoom = this.zoom;
-                }
-                search.clear(); 
-                search.loading = false;
-                return mapView.goTo(goToParams.target, goToParams.options);               
-            }
-        });
+        let search = new Search({view: mapView, container: document.createElement("div"), popupEnabled: this.popup});
+
+
         if (this.search) {
             mapView.ui.add({component: search, position: 'top-left'});
         }
+  
         return search;
 
       } catch (error) {
@@ -212,6 +207,13 @@ export class WebMap {
             if (this.address) {
                 search.search(this.address);
             }
+            search.goToOverride = (view, goToParams) => {
+              debugger
+              if (this.zoom) {
+                  goToParams.target.zoom = this.zoom;
+              }
+              return view.goTo(goToParams.target, goToParams.options);              
+          }                  
         });
     }
     if (this.layerlist) {
