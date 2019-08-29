@@ -314,8 +314,7 @@ export class WebMap {
       <div id="mapDiv">
 
 </div>
-<div class="panel-side" id="graphics">
-  <div style={{display: (this.features.length)?'block':'none'}}>
+<div style={{display: (this.features.length)?'block':'none'}} class="panel-side" id="graphics">
     <h3>{this.listlayer}</h3>
     <ul>
       {this.features.map((feature) => 
@@ -326,7 +325,6 @@ export class WebMap {
       </li>
       )}
     </ul>
-  </div>
   </div>
 </div>
 

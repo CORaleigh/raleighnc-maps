@@ -5,8 +5,9 @@
     "declaration": false,
     "experimentalDecorators": true,
     "lib": [
-      "dom",
-      "es2017"
+      "esnext.asynciterable",
+      "es2018",
+      "dom"
     ],
     "moduleResolution": "node",
     "module": "esnext",
