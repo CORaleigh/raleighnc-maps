@@ -208,7 +208,6 @@ export class WebMap {
                 search.search(this.address);
             }
             search.goToOverride = (view, goToParams) => {
-              debugger
               if (this.zoom) {
                   goToParams.target.zoom = this.zoom;
               }
