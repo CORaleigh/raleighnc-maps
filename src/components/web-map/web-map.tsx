@@ -18,6 +18,7 @@ export class WebMap {
   @Prop() popup: boolean = true;
   @Prop() querywhere: string;
   @Prop() querylayer: string;
+  @Prop() filter: boolean = false;  
   @Prop() popupdocked:boolean = false;
   @Prop() dockposition: string = 'auto';
   @Prop() highlight:boolean = true;
@@ -99,12 +100,13 @@ export class WebMap {
         const [Search] = await loadModules([
           'esri/widgets/Search'
         ]);
-        let search = new Search({view: mapView, container: document.createElement("div"), popupEnabled: this.popup});
+        let search = new Search({view: mapView, container: document.createElement("div"), popupEnabled: this.popup, resultGraphicEnabled: false});
 
 
         if (this.search) {
             mapView.ui.add({component: search, position: 'top-left'});
         }
+
   
         return search;
 
@@ -167,9 +169,18 @@ export class WebMap {
   query(mapView) {
     mapView.on('layerview-create', (layerView) => {
         if (layerView.layer.title === this.querylayer) {
+            if (this.filter) {
+              layerView.layer.definitionExpression = this.querywhere;
+              layerView.layer.refresh();
+            }
             layerView.layer.queryFeatures({where: this.querywhere, returnGeometry: true, outSpatialReference: mapView.spatialReference, outFields: ['*']}).then(result => {
               if (result.features.length) {
-                mapView.goTo(result.features[0], {duration:2500});
+                let target: any = {target: result.features};
+                if (this.zoom) {
+                  target.zoom = this.zoom;
+                }
+                mapView.goTo(target, {duration:2500});
+                
                 if (this.popup) {
                     mapView.popup.open({features:result.features});
                 }
@@ -203,7 +214,7 @@ export class WebMap {
   mapLoaded(mapView) {
    
     if (this.search || this.address) {
-        this.initializeSearch(mapView).then(search => {
+        this.initializeSearch(mapView).then(search => {  
             if (this.address) {
                 search.search(this.address);
             }
@@ -211,8 +222,18 @@ export class WebMap {
               if (this.zoom) {
                   goToParams.target.zoom = this.zoom;
               }
+              view.graphics.add({symbol: {
+                type: "picture-marker",  // autocasts as new PictureMarkerSymbol()
+                url: "marker.svg",
+                width: "48px",
+                height: "48px",
+                yoffset: 4
+              }, geometry: goToParams.target.target
+            });
               return view.goTo(goToParams.target, goToParams.options);              
-          }                  
+          };
+
+   
         });
     }
     if (this.layerlist) {
@@ -224,7 +245,7 @@ export class WebMap {
     if (this.legend) {
         this.initializeLegend(mapView);
     }           
-    if (this.zoom) {
+    if (this.zoom && !this.querylayer) {
         mapView.zoom = this.zoom;
     }      
 
@@ -304,7 +325,6 @@ export class WebMap {
   }
 
   zoomToFeature(feature) {
-    debugger
     this.mapView.goTo(feature.geometry)
   }
   render() {

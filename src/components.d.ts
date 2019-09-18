@@ -17,6 +17,7 @@ export namespace Components {
     'collapsewidgets': boolean;
     'dockposition': string;
     'expandedwidget': string;
+    'filter': boolean;
     'highlight': boolean;
     'layerlist': boolean;
     'legend': boolean;
@@ -60,6 +61,7 @@ declare namespace LocalJSX {
     'collapsewidgets'?: boolean;
     'dockposition'?: string;
     'expandedwidget'?: string;
+    'filter'?: boolean;
     'highlight'?: boolean;
     'layerlist'?: boolean;
     'legend'?: boolean;
