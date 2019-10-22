@@ -35,6 +35,7 @@ export class WebMap {
   @Prop() listorderby: string = "";
   mapView:any;
   @State() features:any[] = [];
+  @State() divId:string = "";
   async initializeMap() {
     try {
         const [WebMap, Map, MapView, esriConfig] = await loadModules([
@@ -60,7 +61,7 @@ export class WebMap {
               breakpoint: false
           }
       };         
-        return new MapView({map: map, container: 'mapDiv', popup: popupconfig});
+        return new MapView({map: map, container: this.divId, popup: popupconfig});
 
       } catch (error) {
         console.log('EsriLoader: ', error);
@@ -310,8 +311,14 @@ export class WebMap {
         mapView.camera = camera;
     })
   }
+  getRandomString = function() {
+    var x = 2147483648;
+    return Math.floor(Math.random() * x).toString(36) +
+           Math.abs(Math.floor(Math.random() * x) ^ +new Date()).toString(36);
+  };
   componentDidLoad() {
     this.listfields = this.listfields;
+    this.divId = this.getRandomString();
     if (!this.scene) {
         this.initializeMap().then((mapView) => {
             this.mapLoaded(mapView);
@@ -331,7 +338,7 @@ export class WebMap {
     return (
         <div class="container">
        
-      <div id="mapDiv">
+      <div id={this.divId}>
 
 </div>
 <div style={{display: (this.features.length)?'block':'none'}} class="panel-side" id="graphics">
